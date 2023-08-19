@@ -112,10 +112,10 @@ def draw_bounding_boxes(image, boxes, labels, class_names, ids):
         # print(label)
 
         # Draw bounding boxes
-        cv2.rectangle(  image, 
-                        (int(box[0].item()), int(box[1].item())), (int(box[2].item()), int(box[3].item())), 
-                        tuple([int(c) for c in draw_bounding_boxes.colours[int(ids[i]) % 32, :]]), 
-                        4)
+        # cv2.rectangle(  image, 
+        #                 (int(box[0].item()), int(box[1].item())), (int(box[2].item()), int(box[3].item())), 
+        #                 tuple([int(c) for c in draw_bounding_boxes.colours[int(ids[i]) % 32, :]]), 
+        #                 4)
 
         # Draw labels
         cv2.putText(image, label,
@@ -368,7 +368,7 @@ while True:
             # Draw bounding boxes onto the image
             output = draw_bounding_boxes(image, trackers[:, 0 : 4], labels, COCO_CLASS_NAMES, trackers[:, 4])
 
-        cv2.imshow('YOLOv4 Darknet', image)
+        cv2.imshow('3D Ground Truth SORT', image)
 
         # Quit if user presses 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
