@@ -80,6 +80,11 @@ camera_init_trans = carla.Transform(carla.Location(x=0.5, z=2))
 
 # Create a RGB camera
 rgb_camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
+
+# [Windows Only] Fixes https://github.com/carla-simulator/carla/issues/6085
+rgb_camera_bp.set_attribute('image_size_x', '640')
+rgb_camera_bp.set_attribute('image_size_y', '640')
+
 camera = world.spawn_actor(rgb_camera_bp, camera_init_trans, attach_to=vehicle)
 
 # Callback stores sensor data in a dictionary for use outside callback                         

@@ -35,7 +35,7 @@ if not os.path.isfile(os.path.join(WHAT_MODEL_PATH, WHAT_MODEL_FILE)):
              WHAT_MODEL_HASH)
 
 # Initialize the model
-model = MobileNetV2SSDLite(os.path.join(WHAT_MODEL_PATH, what_model_list[index][WHAT_MODEL_FILE_INDEX]),
+model = MobileNetV2SSDLite(os.path.join(WHAT_MODEL_PATH, WHAT_MODEL_FILE),
                        VOC_CLASS_NAMES,
                        is_test=True,
                        device=device)
@@ -83,6 +83,11 @@ camera_init_trans = carla.Transform(carla.Location(x=0.5, z=2))
 
 # Create a RGB camera
 rgb_camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
+
+# [Windows Only] Fixes https://github.com/carla-simulator/carla/issues/6085
+rgb_camera_bp.set_attribute('image_size_x', '640')
+rgb_camera_bp.set_attribute('image_size_y', '640')
+
 camera = world.spawn_actor(rgb_camera_bp, camera_init_trans, attach_to=vehicle)
 
 # Callback stores sensor data in a dictionary for use outside callback                         
