@@ -8,6 +8,7 @@ import random
 import queue
 
 import cv2
+import torch
 import numpy as np
 
 ## Part 0: Object Detection model
@@ -19,19 +20,12 @@ from what.models.detection.yolo.yolov4_tiny import YOLOV4_TINY
 from what.cli.model import *
 from what.utils.file import get_file
 
-def to_numpy(data):
-    if isinstance(data, np.ndarray):
-        return data
-    if isinstance(data, t.Tensor):
-        return data.detach().cpu().numpy()
-
 def draw_bounding_boxes(image, boxes, labels, class_names, ids):
     if not hasattr(draw_bounding_boxes, "colours"):
         draw_bounding_boxes.colours = np.random.randint(0, 256, size=(32, 3))
 
     if len(boxes) > 0:
         assert(boxes.shape[1] == 4)
-        boxes = to_numpy(boxes)
 
     # (x, y, w, h) --> (x1, y1, x2, y2)
     height, width, _ = image.shape

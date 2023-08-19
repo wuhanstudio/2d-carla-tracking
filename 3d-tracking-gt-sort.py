@@ -75,19 +75,12 @@ def get_vanishing_point(p1, p2, p3, p4):
 
     return [vp_x, vp_y]
 
-def to_numpy(data):
-    if isinstance(data, np.ndarray):
-        return data
-    if isinstance(data, t.Tensor):
-        return data.detach().cpu().numpy()
-
 def draw_bounding_boxes(image, boxes, labels, class_names, ids):
     if not hasattr(draw_bounding_boxes, "colours"):
         draw_bounding_boxes.colours = np.random.randint(0, 256, size=(32, 3))
 
     if len(boxes) > 0:
         assert(boxes.shape[1] == 4)
-        boxes = to_numpy(boxes)
 
     # (x, y, w, h) --> (x1, y1, x2, y2)
     height, width, _ = image.shape
