@@ -165,7 +165,7 @@ spectator = world.get_spectator()
 ## Part 2: Camera Callback
 
 # Create a camera floating behind the vehicle
-camera_init_trans = carla.Transform(carla.Location(x=0.5, z=2))
+camera_init_trans = carla.Transform(carla.Location(x=1, z=2))
 
 # Create a RGB camera
 rgb_camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
@@ -366,9 +366,9 @@ while True:
                 track[3] /= image_h
 
             # Draw bounding boxes onto the image
-            output = draw_bounding_boxes(image, trackers[:, 0 : 4], labels, COCO_CLASS_NAMES, trackers[:, 4])
+            output = draw_bounding_boxes(image, trackers[:, 0:4], labels, COCO_CLASS_NAMES, trackers[:, 4]);
 
-        cv2.imshow('YOLOv4 Darknet', image)
+        cv2.imshow('2D Ground Truth SORT', image)
 
         # Quit if user presses 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -78,7 +78,7 @@ spectator = world.get_spectator()
 ## Part 2: Camera Callback
 
 # Create a camera floating behind the vehicle
-camera_init_trans = carla.Transform(carla.Location(x=0.5, z=2))
+camera_init_trans = carla.Transform(carla.Location(x=1, z=2))
 
 # Create a RGB camera
 rgb_camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
@@ -165,7 +165,7 @@ while True:
                 VOC_CLASS_NAMES[1:],
                 scores)
 
-        cv2.imshow('Faster RCNN', output)
+        cv2.imshow('2D Faster RCNN', output)
 
         # Quit if user presses 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
