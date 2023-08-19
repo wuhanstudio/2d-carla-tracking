@@ -13,12 +13,62 @@ import numpy as np
 ## Part 0: Object Detection model
 
 from what.models.detection.datasets.coco import COCO_CLASS_NAMES
-from what.models.detection.utils.box_utils import draw_bounding_boxes
 from what.models.detection.yolo.yolov4 import YOLOV4
 from what.models.detection.yolo.yolov4_tiny import YOLOV4_TINY
 
 from what.cli.model import *
 from what.utils.file import get_file
+
+def to_numpy(data):
+    if isinstance(data, np.ndarray):
+        return data
+    if isinstance(data, t.Tensor):
+        return data.detach().cpu().numpy()
+
+def draw_bounding_boxes(image, boxes, labels, class_names, ids):
+    if not hasattr(draw_bounding_boxes, "colours"):
+        draw_bounding_boxes.colours = np.random.randint(0, 256, size=(32, 3))
+
+    if len(boxes) > 0:
+        assert(boxes.shape[1] == 4)
+        boxes = to_numpy(boxes)
+
+    # (x, y, w, h) --> (x1, y1, x2, y2)
+    height, width, _ = image.shape
+    for box in boxes:
+        box[0] *= width
+        box[1] *= height
+        box[2] *= width 
+        box[3] *= height
+
+        # From center to top left
+        box[0] -= box[2] / 2
+        box[1] -= box[3] / 2
+
+        # From width and height to x2 and y2
+        box[2] += box[0]
+        box[3] += box[1]
+
+    # Draw bounding boxes and labels
+    for i in range(boxes.shape[0]):
+        box = boxes[i]
+        label = f"{class_names[labels[i]]}: {int(ids[i])}"
+        # print(label)
+
+        # Draw bounding boxes
+        cv2.rectangle(  image, 
+                        (int(box[0].item()), int(box[1].item())), (int(box[2].item()), int(box[3].item())), 
+                        tuple([int(c) for c in draw_bounding_boxes.colours[int(ids[i]) % 32, :]]), 
+                        4)
+
+        # Draw labels
+        cv2.putText(image, label,
+                    (int(box[0]+20), int(box[1]+40)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,  # font scale
+                    tuple([int(c) for c in draw_bounding_boxes.colours[int(ids[i]) % 32, :]]),
+                    2)  # line type
+    return image
 
 # Check what_model_list for all supported models
 what_yolov4_model_list = what_model_list[4:6]
@@ -80,7 +130,7 @@ spectator = world.get_spectator()
 ## Part 2: Camera Callback
 
 # Create a camera floating behind the vehicle
-camera_init_trans = carla.Transform(carla.Location(x=0.5, z=2))
+camera_init_trans = carla.Transform(carla.Location(x=1, z=2))
 
 # Create a RGB camera
 rgb_camera_bp = world.get_blueprint_library().find('sensor.camera.rgb')
@@ -193,10 +243,8 @@ while True:
 
             # Draw bounding boxes onto the image
             output = draw_bounding_boxes(image, trackers[:, 0:4], labels, model.class_names, trackers[:, 4]);
-        else:
-            output = draw_bounding_boxes(image, boxes, labels, model.class_names, probs);
 
-        cv2.imshow('YOLOv4 Darknet', image)
+        cv2.imshow('2D YOLOv4 SORT', image)
 
         # Quit if user presses 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):
