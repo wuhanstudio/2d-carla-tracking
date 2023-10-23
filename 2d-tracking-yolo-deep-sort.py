@@ -331,10 +331,6 @@ while True:
 
                 detections.append(Detection(box, probs[i], feature[0]))
 
-        # Run non-maxima suppression.
-        boxes = np.array([d.tlwh for d in detections])
-        scores = np.array([d.confidence for d in detections])
-
         # Update tracker.
         tracker.predict()
         tracker.update(detections)
@@ -370,7 +366,7 @@ while True:
 
             image = draw_bounding_boxes(image, bboxes, labels, model.class_names, ids);
 
-        cv2.imshow('2D YOLOv4 SORT', image)
+        cv2.imshow('2D YOLOv4 Deep SORT', image)
 
         # Quit if user presses 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -498,7 +498,7 @@ while True:
 
             image = draw_bounding_boxes(image, bboxes, labels, COCO_CLASS_NAMES, ids);
 
-        cv2.imshow('2D Ground Truth SORT', image)
+        cv2.imshow('2D Ground Truth Deep SORT', image)
 
         # Quit if user presses 'q'
         if cv2.waitKey(1) & 0xFF == ord('q'):

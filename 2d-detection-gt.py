@@ -314,7 +314,7 @@ while True:
             # Draw bounding boxes onto the image
             output = draw_bounding_boxes(image, boxes, labels, COCO_CLASS_NAMES, ids);
 
-        cv2.imshow('2D Bounding Boxes', image)
+        cv2.imshow('2D Ground Truth', image)
 
         if cv2.waitKey(1) == ord('q'):
             clear()
