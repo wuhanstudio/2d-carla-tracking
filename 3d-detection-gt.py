@@ -6,8 +6,6 @@ import random
 import cv2
 import numpy as np
 
-from what.models.detection.datasets.coco import COCO_CLASS_NAMES
-
 from utils.box_utils import draw_bounding_boxes
 from utils.projection import *
 from utils.world import *
@@ -15,6 +13,7 @@ from utils.world import *
 def camera_callback(image, rgb_image_queue):
     rgb_image_queue.put(np.reshape(np.copy(image.raw_data),
                         (image.height, image.width, 4)))
+
 
 # Part 1
 client = carla.Client('localhost', 2000)
@@ -86,24 +85,26 @@ for i in range(20):
 
 vehicle.set_autopilot(True)
 
-# Main Loop
+# Main loop
 while True:
     try:
         world.tick()
 
-        # Move the spectator to the top of the vehicle
-        transform = carla.Transform(vehicle.get_transform().transform(
-            carla.Location(x=-4, z=50)), carla.Rotation(yaw=-180, pitch=-90))
-        spectator.set_transform(transform)
+        # Move the spectator to the top of the vehicle 
+        transform = carla.Transform(vehicle.get_transform().transform(carla.Location(x=-4,z=50)), carla.Rotation(yaw=-180, pitch=-90)) 
+        spectator.set_transform(transform) 
 
-        # Retrieve and reshape the image
+        # Display RGB camera image
         image = image_queue.get()
 
-        # Get the camera matrix
+        # Image preprocessing
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        # Get the camera matrix 
         world_2_camera = np.array(camera.get_transform().get_inverse_matrix())
 
         boxes = []
-        ids = []
         for npc in world.get_actors().filter('*vehicle*'):
 
             # Filter out the ego vehicle
@@ -124,8 +125,7 @@ while True:
 
                     if forward_vec.dot(ray) > 0:
 
-                        verts = [v for v in bb.get_world_vertices(
-                            npc.get_transform())]
+                        verts = [v for v in bb.get_world_vertices(npc.get_transform())]
 
                         points_2d = []
 
@@ -140,29 +140,24 @@ while True:
 
                             points_2d.append(p)
 
-                        x_min, x_max, y_min, y_max = get_2d_box_from_3d_edges(
-                            points_2d, edges, image_h, image_w)
+                        for edge in edges:
+                            p1 = points_2d[edge[0]]
+                            p2 = points_2d[edge[1]]
 
-                        # Exclude very small bounding boxes
-                        if (y_max - y_min) * (x_max - x_min) > 100 and (x_max - x_min) > 20:
-                            if point_in_canvas((x_min, y_min), image_h, image_w) and point_in_canvas((x_max, y_max), image_h, image_w):
-                                ids.append(npc.id)
-                                boxes.append(
-                                    np.array([x_min, y_min, x_max, y_max]))
+                            p1_in_canvas = point_in_canvas(p1, image_h, image_w)
+                            p2_in_canvas = point_in_canvas(p2, image_h, image_w)
 
-        # Only draw 2: car, 5: bus, 7: truck
-        boxes = np.array(boxes)
-        labels = np.array([2] * len(boxes))
-        probs = np.array([1.0] * len(boxes))
+                            # Both points are out of the canvas
+                            if not p1_in_canvas and not p2_in_canvas:
+                                continue
+                            
+                            # Draw 3D Bounding Boxes
+                            cv2.line(image, (int(p1[0]),int(p1[1])), (int(p2[0]),int(p2[1])), (255,0,0, 255), 1)        
 
-        if len(boxes) > 0:
-            # Draw bounding boxes onto the image
-            output = draw_bounding_boxes(
-                image, boxes, labels, COCO_CLASS_NAMES, ids)
+        cv2.imshow('3D Ground Truth', image)
 
-        cv2.imshow('2D Ground Truth', image)
-
-        if cv2.waitKey(1) == ord('q'):
+        # Quit if user presses 'q'
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     except KeyboardInterrupt as e:
