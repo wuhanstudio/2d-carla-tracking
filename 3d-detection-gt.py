@@ -71,7 +71,8 @@ fov = camera_bp.get_attribute("fov").as_float()
 K = build_projection_matrix(image_w, image_h, fov)
 K_b = build_projection_matrix(image_w, image_h, fov, is_behind_camera=True)
 
-for i in range(20):
+# Spawn NPCs
+for i in range(50):
     vehicle_bp = bp_lib.filter('vehicle')
 
     # Exclude bicycle
